@@ -11,6 +11,7 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 ## Environment variables
 The following environment variable must be set.
 
+- KAFKA_BOOTSTRAP
 - SOURCE_TOPICS
 - SINK_TOPIC
 - SCHEMA_REGISTRY_URL

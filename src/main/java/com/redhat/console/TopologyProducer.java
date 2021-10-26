@@ -17,6 +17,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class TopologyProducer {
+    @ConfigProperty(name = "KAFKA_BOOTSTRAP")
+    String kafkaBootstrap;
 
     @ConfigProperty(name = "SOURCE_TOPICS")
     String sourceTopics;
