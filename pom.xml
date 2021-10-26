@@ -56,11 +56,6 @@
       <artifactId>quarkus-junit5</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured</artifactId>
-      <scope>test</scope>
-    </dependency>
     <!-- https://mvnrepository.com/artifact/io.confluent/kafka-streams-avro-serde -->
     <dependency>
       <groupId>io.confluent</groupId>
