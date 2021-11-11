@@ -6,9 +6,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
-import com.redhat.console.schemaregistry.Subject.Reference;
-import com.redhat.console.schemaregistry.Subject;
-import com.redhat.console.schemaregistry.SubjectsService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.redhat.console.avro.SinkSchema;
+import com.redhat.console.avro.transformation.Transformer;
 import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -20,7 +20,6 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Produced;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
 public class TopologyProducer {
@@ -36,15 +35,14 @@ public class TopologyProducer {
     @ConfigProperty(name = "SCHEMA_REGISTRY_URL")
     String schemaRegistryUrl;
 
+    @Inject @SinkSchema
+    Schema sinkSchema;
+
     @Inject
-    @RestClient
-    SubjectsService subjectsService;
+    Transformer transformer;
 
     @Produces
     public Topology buildTopology() {
-        //parse the sink/index schema and it's references
-        Schema sinkSchema = buildSinkSchema();
-
         //build the streams pipeline
         StreamsBuilder builder = new StreamsBuilder();
 
@@ -62,11 +60,15 @@ public class TopologyProducer {
             Consumed.with(keyGenericAvroSerde, valueGenericAvroSerde))
         .mapValues(
                 record -> {
-                    GenericRecord outputRecord = new GenericData.Record(sinkSchema);
-
-                    //this assumes a 1-1 index from source to sink
-                    outputRecord.put(sinkSchema.getFields().get(0).name(), record);
-                    return outputRecord;
+                    try {
+                        GenericRecord outputRecord = new GenericData.Record(sinkSchema);
+                        //this assumes a 1-1 index from source to sink
+                        outputRecord.put(sinkSchema.getFields().get(0).name(), record);
+                        outputRecord = transformer.transform(outputRecord, sinkSchema);
+                        return outputRecord;
+                    } catch (JsonProcessingException e) {
+                        throw new IllegalStateException(e);
+                    }
                 })
         .selectKey((key, value) -> {
             return key.get("id").toString();
@@ -77,16 +79,5 @@ public class TopologyProducer {
         );
 
         return builder.build();
-    }
-
-    private Schema buildSinkSchema() {
-        Subject sinkSchemaSubject = subjectsService.getSubject(sinkTopic + "-value", "1");
-        Schema.Parser schemaParser = new Schema.Parser();
-
-        for (Reference reference : sinkSchemaSubject.references) {
-            String referenceSchema = subjectsService.getSchema(reference.subject, reference.version);
-            schemaParser.parse(referenceSchema);
-        }
-        return schemaParser.parse(sinkSchemaSubject.schema);
     }
 }

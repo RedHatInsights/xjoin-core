@@ -1,4 +1,4 @@
-package com.redhat.console.schemaregistry;
+package com.redhat.console.avro.schemaregistry;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
