@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.redhat.console.avro.SinkSchema;
 import com.redhat.console.avro.transformation.Transformer;
+import io.apicurio.registry.serde.avro.AvroSerde;
 import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -20,6 +21,7 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Produced;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.apicurio.registry.serde.SerdeConfig;
 
 @ApplicationScoped
 public class TopologyProducer {
@@ -49,12 +51,28 @@ public class TopologyProducer {
         final Map<String, String> serdeConfig = Collections.singletonMap("schema.registry.url",
                 schemaRegistryUrl);
 
-        Serde<GenericRecord> keyGenericAvroSerde = new GenericAvroSerde();
-        keyGenericAvroSerde.configure(serdeConfig, true);
+//        Serde<GenericRecord> keyGenericAvroSerde = new GenericAvroSerde();
+//        keyGenericAvroSerde.configure(serdeConfig, true);
+//        Serde<GenericRecord> valueGenericAvroSerde = new GenericAvroSerde();
+//        valueGenericAvroSerde.configure(serdeConfig, false);
 
-        Serde<GenericRecord> valueGenericAvroSerde = new GenericAvroSerde();
-        valueGenericAvroSerde.configure(serdeConfig, false);
+        //key serde
+        Map<String, Object> keyConfig = new HashMap<>();
+        keyConfig.put(SerdeConfig.REGISTRY_URL, schemaRegistryUrl);
+        keyConfig.put(SerdeConfig.FIND_LATEST_ARTIFACT, true);
+//        keyConfig.put(AvroKafkaSerdeConfig.USE_SPECIFIC_AVRO_READER, true);
+//        keyConfig.put(SerdeConfig.ARTIFACT_RESOLVER_STRATEGY, RecordIdStrategy.class);
+        AvroSerde<GenericRecord> keyGenericAvroSerde = new AvroSerde<>();
+        keyGenericAvroSerde.configure(keyConfig, true);
 
+        //value serde
+        Map<String, Object> valueConfig = new HashMap<>();
+        valueConfig.put(SerdeConfig.REGISTRY_URL, schemaRegistryUrl);
+        valueConfig.put(SerdeConfig.FIND_LATEST_ARTIFACT, true);
+        AvroSerde<GenericRecord> valueGenericAvroSerde = new AvroSerde<>();
+        valueGenericAvroSerde.configure(valueConfig, false);
+
+        //topology
         builder.stream(
             sourceTopics,
             Consumed.with(keyGenericAvroSerde, valueGenericAvroSerde))
