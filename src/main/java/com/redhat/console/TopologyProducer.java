@@ -9,12 +9,10 @@ import javax.inject.Inject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.redhat.console.avro.SinkSchema;
 import com.redhat.console.avro.transformation.Transformer;
-import io.apicurio.registry.serde.avro.AvroSerde;
-import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde;
+import io.apicurio.registry.serde.avro.*;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -50,7 +48,6 @@ public class TopologyProducer {
 
         final Map<String, Object> serdeConfig = new HashMap<>();
         serdeConfig.put(SerdeConfig.REGISTRY_URL, schemaRegistryUrl);
-        serdeConfig.put(SerdeConfig.AUTO_REGISTER_ARTIFACT, false);
         serdeConfig.put(SerdeConfig.FIND_LATEST_ARTIFACT, true);
 
         AvroSerde<GenericRecord> keyGenericAvroSerde = new AvroSerde<>();
@@ -58,6 +55,14 @@ public class TopologyProducer {
 
         AvroSerde<GenericRecord> valueGenericAvroSerde = new AvroSerde<>();
         valueGenericAvroSerde.configure(serdeConfig, false);
+
+        final Map<String, Object> outputSerdeConfig = new HashMap<>();
+        outputSerdeConfig.put(SerdeConfig.REGISTRY_URL, schemaRegistryUrl);
+        outputSerdeConfig.put(SerdeConfig.FIND_LATEST_ARTIFACT, true);
+        outputSerdeConfig.put(AvroKafkaSerdeConfig.AVRO_ENCODING, AvroKafkaSerdeConfig.AVRO_ENCODING_BINARY);
+        outputSerdeConfig.put(SerdeConfig.ENABLE_HEADERS, false);
+        AvroSerde<GenericRecord> outputGenericSerde = new AvroSerde<>();
+        outputGenericSerde.configure(outputSerdeConfig, false);
 
         builder.stream(
             sourceTopics,
@@ -79,7 +84,7 @@ public class TopologyProducer {
         })
         .to(
             sinkTopic,
-            Produced.with(Serdes.String(), valueGenericAvroSerde)
+            Produced.with(Serdes.String(), outputGenericSerde)
         );
 
         return builder.build();
