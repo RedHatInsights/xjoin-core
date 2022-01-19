@@ -26,6 +26,7 @@ public class AvroSchema {
     @JsonAlias("xjoin.transformations")
     public List<Transformation> transformations;
 
+    @RegisterForReflection
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Field {
         public String name;
@@ -41,6 +42,7 @@ public class AvroSchema {
         public boolean xjoinIndex;
     }
 
+    @RegisterForReflection
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Type {
         public String type;
