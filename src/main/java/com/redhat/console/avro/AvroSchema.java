@@ -5,11 +5,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.redhat.console.avro.transformation.Transformation;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 
 import java.util.List;
 
+@RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AvroSchema {
+
+    public AvroSchema(){}
 
     @JsonAlias("xjoin.type")
     public String xjoinType;
