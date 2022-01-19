@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
@@ -14,10 +15,12 @@ import org.apache.avro.generic.GenericRecordBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+@RegisterForReflection
 public class ObjectToArrayOfObjects extends Transformation {
     @JsonAlias("transformation.parameters")
     public Parameters parameters;
 
+    @RegisterForReflection
     private static class Parameters {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public List<String> keys;

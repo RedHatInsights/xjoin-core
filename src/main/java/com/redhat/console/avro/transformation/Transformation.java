@@ -3,11 +3,13 @@ package com.redhat.console.avro.transformation;
 import com.fasterxml.jackson.annotation.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 
+@RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
