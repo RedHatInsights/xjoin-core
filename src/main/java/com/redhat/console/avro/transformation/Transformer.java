@@ -22,8 +22,10 @@ public class Transformer {
         record = transformRecordSchema((GenericData.Record) record, transformedSchema);
 
         //apply transformations
-        for (Transformation transformation : sinkSchemaPOJO.transformations) {
-            record = transformation.transform(record, transformedSchema);
+        if (sinkSchemaPOJO.transformations != null) {
+            for (Transformation transformation : sinkSchemaPOJO.transformations) {
+                record = transformation.transform(record, transformedSchema);
+            }
         }
 
         return record;
