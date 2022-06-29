@@ -10,7 +10,7 @@ import javax.ws.rs.Produces;
 import java.io.Serializable;
 
 @ApplicationScoped
-public class SchemaBuilder implements Serializable {
+public class SinkSchemaBuilder implements Serializable {
 
     @ConfigProperty(name = "SINK_SCHEMA")
     String sinkSchema;
@@ -29,4 +29,3 @@ public class SchemaBuilder implements Serializable {
         return jsonMapper.readValue(sinkSchema, AvroSchema.class);
     }
 }
-

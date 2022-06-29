@@ -1,0 +1,14 @@
+{
+  "name": "Key",
+  "createdBy": "",
+  "createdOn": "2022-06-27T14:39:08+0000",
+  "modifiedBy": "",
+  "modifiedOn": "2022-06-27T14:39:08+0000",
+  "id": "test-topic-key",
+  "version": "1",
+  "type": "AVRO",
+  "globalId": 2,
+  "state": "ENABLED",
+  "contentId": 2,
+  "references": []
+}

@@ -10,11 +10,12 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.generic.GenericRecordBuilder;
 
+import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
 import java.util.List;
 
+@ApplicationScoped
 @RegisterForReflection
 public class ObjectToArrayOfObjects extends Transformation {
     @JsonAlias("transformation.parameters")

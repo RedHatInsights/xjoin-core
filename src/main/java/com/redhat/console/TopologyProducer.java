@@ -13,6 +13,7 @@ import io.apicurio.registry.serde.avro.*;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -35,7 +36,8 @@ public class TopologyProducer {
     @ConfigProperty(name = "SCHEMA_REGISTRY_URL")
     String schemaRegistryUrl;
 
-    @Inject @SinkSchema
+    @Inject
+    @SinkSchema
     Schema sinkSchema;
 
     @Inject
@@ -61,31 +63,30 @@ public class TopologyProducer {
         outputSerdeConfig.put(SerdeConfig.FIND_LATEST_ARTIFACT, true);
         outputSerdeConfig.put(AvroKafkaSerdeConfig.AVRO_ENCODING, AvroKafkaSerdeConfig.AVRO_ENCODING_BINARY);
         outputSerdeConfig.put(SerdeConfig.ENABLE_HEADERS, false);
+
         AvroSerde<GenericRecord> outputGenericSerde = new AvroSerde<>();
         outputGenericSerde.configure(outputSerdeConfig, false);
 
         builder.stream(
-            sourceTopics,
-            Consumed.with(keyGenericAvroSerde, valueGenericAvroSerde))
-        .mapValues(
-                record -> {
-                    try {
-                        GenericRecord outputRecord = new GenericData.Record(sinkSchema);
-                        //this assumes a 1-1 index from source to sink
-                        outputRecord.put(sinkSchema.getFields().get(0).name(), record);
-                        outputRecord = transformer.transform(outputRecord, sinkSchema);
-                        return outputRecord;
-                    } catch (JsonProcessingException e) {
-                        throw new IllegalStateException(e);
-                    }
-                })
-        .selectKey((key, value) -> {
-            return key.get("id").toString();
-        })
-        .to(
-            sinkTopic,
-            Produced.with(Serdes.String(), outputGenericSerde)
-        );
+                        sourceTopics,
+                        Consumed.with(keyGenericAvroSerde, valueGenericAvroSerde))
+                .mapValues(
+                        record -> {
+                            try {
+                                GenericRecord outputRecord = new GenericData.Record(sinkSchema);
+                                //this assumes a 1-1 index from source to sink
+                                outputRecord.put(sinkSchema.getFields().get(0).name(), record);
+                                outputRecord = transformer.transform(outputRecord, sinkSchema);
+                                return outputRecord;
+                            } catch (JsonProcessingException e) {
+                                throw new IllegalStateException(e);
+                            }
+                        })
+                .selectKey((key, value) -> key.get("id").toString())
+                .to(
+                        sinkTopic,
+                        Produced.with(Serdes.String(), outputGenericSerde)
+                );
 
         return builder.build();
     }

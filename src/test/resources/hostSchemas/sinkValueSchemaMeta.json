@@ -1,0 +1,13 @@
+{
+  "createdBy": "",
+  "createdOn": "2022-06-27T14:18:04+0000",
+  "modifiedBy": "",
+  "modifiedOn": "2022-06-27T14:18:04+0000",
+  "id": "test-sink-topic-value",
+  "version": "1",
+  "type": "AVRO",
+  "globalId": 3,
+  "state": "ENABLED",
+  "contentId": 3,
+  "references": []
+}
