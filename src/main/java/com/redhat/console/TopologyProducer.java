@@ -78,7 +78,7 @@ public class TopologyProducer {
                                 outputRecord.put(sinkSchema.getFields().get(0).name(), record);
                                 outputRecord = transformer.transform(outputRecord, sinkSchema);
                                 return outputRecord;
-                            } catch (JsonProcessingException e) {
+                            } catch (JsonProcessingException | ClassNotFoundException e) {
                                 throw new IllegalStateException(e);
                             }
                         })
