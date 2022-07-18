@@ -11,6 +11,7 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.kafka.common.serialization.Serde;
@@ -145,6 +146,145 @@ public class HostTopologyProducerTest {
         expectedHostBuilder.set("tags_structured", new ArrayList<String>());
         expectedHostBuilder.set("tags_string", new ArrayList<String>());
         expectedHostBuilder.set("tags_search", new ArrayList<String>());
+
+        GenericRecordBuilder expectedBuilder = new GenericRecordBuilder(sinkValueSchema);
+        expectedBuilder.set("host", expectedHostBuilder.build());
+
+        Assertions.assertEquals(expectedBuilder.build(), this.outputTopic.readValue());
+    }
+
+    @Test
+    void processComplexHost() {
+        //build source
+        GenericRecordBuilder keyBuilder = new GenericRecordBuilder(sourceKeySchema);
+        keyBuilder.set("id", "1");
+        GenericRecord keyRecord = keyBuilder.build();
+
+        GenericRecordBuilder sourceValueBuilder = new GenericRecordBuilder(sourceValueSchema);
+        sourceValueBuilder.set("id", "1");
+        sourceValueBuilder.set("account", "540155");
+        sourceValueBuilder.set("org_id", "540155");
+        sourceValueBuilder.set("display_name", "test.host.com");
+        sourceValueBuilder.set("created_on", "2022-06-22 14:54:17.465324+00");
+        sourceValueBuilder.set("modified_on", "2022-06-22 14:54:17.465324+00");
+        sourceValueBuilder.set("facts", "{}");
+        sourceValueBuilder.set("tags", """
+                {
+                      "Sat": {
+                        "prod": []
+                      },
+                      "NS1": {
+                        "key3": [
+                          "val3"
+                        ]
+                      },
+                      "SPECIAL": {
+                        "key": [
+                          "val"
+                        ]
+                      },
+                      "NS3": {
+                        "key3": [
+                          "val3"
+                        ]
+                      }
+                }""");
+        sourceValueBuilder.set("canonical_facts", "{}");
+        sourceValueBuilder.set("system_profile_facts", "{}");
+        sourceValueBuilder.set("ansible_host", "");
+        sourceValueBuilder.set("stale_timestamp", "2022-06-22 14:54:17.465324+00");
+        sourceValueBuilder.set("reporter", "puptoo");
+        sourceValueBuilder.set("per_reporter_staleness", "{}");
+        GenericRecord valueRecord = sourceValueBuilder.build();
+
+        //run source through the topology
+        this.inputTopic.pipeInput(keyRecord, valueRecord);
+
+        //validate sink topic values
+        GenericRecordBuilder expectedHostBuilder = new GenericRecordBuilder(sinkValueSchema.getField("host").schema());
+        expectedHostBuilder.set("id", "1");
+        expectedHostBuilder.set("account", "540155");
+        expectedHostBuilder.set("org_id", "540155");
+        expectedHostBuilder.set("display_name", "test.host.com");
+        expectedHostBuilder.set("created_on", "2022-06-22 14:54:17.465324+00");
+        expectedHostBuilder.set("modified_on", "2022-06-22 14:54:17.465324+00");
+        expectedHostBuilder.set("facts", "{}");
+        expectedHostBuilder.set("tags", """
+                {
+                      "Sat": {
+                        "prod": []
+                      },
+                      "NS1": {
+                        "key3": [
+                          "val3"
+                        ]
+                      },
+                      "SPECIAL": {
+                        "key": [
+                          "val"
+                        ]
+                      },
+                      "NS3": {
+                        "key3": [
+                          "val3"
+                        ]
+                      }
+                }""");
+        expectedHostBuilder.set("canonical_facts", "{}");
+        expectedHostBuilder.set("system_profile_facts", "{}");
+        expectedHostBuilder.set("ansible_host", "");
+        expectedHostBuilder.set("stale_timestamp", "2022-06-22 14:54:17.465324+00");
+        expectedHostBuilder.set("reporter", "puptoo");
+        expectedHostBuilder.set("per_reporter_staleness", "{}");
+
+        List<GenericRecord> expectedTagsStructuredList = new ArrayList<>();
+
+        GenericRecordBuilder tagsStructuredBuilder1 = new GenericRecordBuilder(
+                sinkValueSchema.getField("host").schema().getField("tags_structured").schema().getElementType());
+        tagsStructuredBuilder1.set("namespace", "Sat");
+        tagsStructuredBuilder1.set("key", "prod");
+        tagsStructuredBuilder1.set("value", null);
+        expectedTagsStructuredList.add(tagsStructuredBuilder1.build());
+
+        GenericRecordBuilder tagsStructuredBuilder3 = new GenericRecordBuilder(
+                sinkValueSchema.getField("host").schema().getField("tags_structured").schema().getElementType());
+        tagsStructuredBuilder3.set("namespace", "NS1");
+        tagsStructuredBuilder3.set("key", "key3");
+        tagsStructuredBuilder3.set("value", "val3");
+        expectedTagsStructuredList.add(tagsStructuredBuilder3.build());
+
+        GenericRecordBuilder tagsStructuredBuilder2 = new GenericRecordBuilder(
+                sinkValueSchema.getField("host").schema().getField("tags_structured").schema().getElementType());
+        tagsStructuredBuilder2.set("namespace", "SPECIAL");
+        tagsStructuredBuilder2.set("key", "key");
+        tagsStructuredBuilder2.set("value", "val");
+        expectedTagsStructuredList.add(tagsStructuredBuilder2.build());
+
+        GenericRecordBuilder tagsStructuredBuilder4 = new GenericRecordBuilder(
+                sinkValueSchema.getField("host").schema().getField("tags_structured").schema().getElementType());
+        tagsStructuredBuilder4.set("namespace", "NS3");
+        tagsStructuredBuilder4.set("key", "key3");
+        tagsStructuredBuilder4.set("value", "val3");
+        expectedTagsStructuredList.add(tagsStructuredBuilder4.build());
+
+        GenericData.Array<GenericRecord> expectedTagsStructuredArray = new GenericData.Array<>(
+                sinkValueSchema.getField("host").schema().getField("tags_structured").schema(), expectedTagsStructuredList);
+
+        expectedHostBuilder.set("tags_structured", expectedTagsStructuredArray);
+
+        List<String> expectedTagsString = new ArrayList<>();
+        expectedTagsString.add("Sat/prod/");
+        expectedTagsString.add("NS1/key3/val3");
+        expectedTagsString.add("SPECIAL/key/val");
+        expectedTagsString.add("NS3/key3/val3");
+        expectedHostBuilder.set("tags_string", expectedTagsString);
+
+        List<String> expectedTagsSearch = new ArrayList<>();
+        expectedTagsSearch.add("Sat/prod=");
+        expectedTagsSearch.add("NS1/key3=val3");
+        expectedTagsSearch.add("SPECIAL/key=val");
+        expectedTagsSearch.add("NS3/key3=val3");
+        expectedHostBuilder.set("tags_search", expectedTagsSearch);
 
         GenericRecordBuilder expectedBuilder = new GenericRecordBuilder(sinkValueSchema);
         expectedBuilder.set("host", expectedHostBuilder.build());

@@ -13,7 +13,6 @@ import io.apicurio.registry.serde.avro.*;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -78,7 +77,7 @@ public class TopologyProducer {
                                 outputRecord.put(sinkSchema.getFields().get(0).name(), record);
                                 outputRecord = transformer.transform(outputRecord, sinkSchema);
                                 return outputRecord;
-                            } catch (JsonProcessingException e) {
+                            } catch (JsonProcessingException | ClassNotFoundException e) {
                                 throw new IllegalStateException(e);
                             }
                         })
