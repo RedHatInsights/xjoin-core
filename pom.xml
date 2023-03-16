@@ -13,8 +13,9 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>2.10.0.Final</quarkus.platform.version>
+    <quarkus.platform.version>2.16.4.Final</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
+    <apicurio.version>2.3.1.Final</apicurio.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -75,7 +76,13 @@
     <dependency>
       <groupId>io.apicurio</groupId>
       <artifactId>apicurio-registry-serdes-avro-serde</artifactId>
-      <version>2.2.4.Final</version>
+      <version>${apicurio.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.apicurio</groupId>
+      <artifactId>apicurio-registry-serde-common</artifactId>
+      <version>${apicurio.version}</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -85,24 +92,18 @@
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.9.0</version>
-    </dependency>
-    <dependency>
-      <groupId>io.apicurio</groupId>
-      <artifactId>apicurio-registry-serde-common</artifactId>
-      <version>2.2.4.Final</version>
-      <scope>compile</scope>
+      <version>2.10.1</version>
     </dependency>
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-jre8</artifactId>
-      <version>2.33.2</version>
+      <version>2.35.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-streams-test-utils</artifactId>
-      <version>3.1.0</version>
+      <version>3.3.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
