@@ -6,6 +6,7 @@
   <artifactId>xjoin-core</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <properties>
+    <apicurio.version>2.3.1.Final</apicurio.version>
     <compiler-plugin.version>3.10.1</compiler-plugin.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
     <maven.compiler.release>17</maven.compiler.release>
@@ -15,7 +16,6 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>2.16.4.Final</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
-    <apicurio.version>2.3.1.Final</apicurio.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -64,9 +64,13 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-health</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
-      <scope>test</scope>
       <version>${quarkus.platform.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
