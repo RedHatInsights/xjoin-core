@@ -72,11 +72,14 @@ public class TopologyProducer {
                 .mapValues(
                         record -> {
                             try {
-                                GenericRecord outputRecord = new GenericData.Record(sinkSchema);
                                 //this assumes a 1-1 index from source to sink
-                                outputRecord.put(sinkSchema.getFields().get(0).name(), record);
-                                outputRecord = transformer.transform(outputRecord, sinkSchema);
-                                return outputRecord;
+                                if (record == null) {
+                                    return null;
+                                } else {
+                                    GenericRecord outputRecord = new GenericData.Record(sinkSchema);
+                                    outputRecord.put(sinkSchema.getFields().get(0).name(), record);
+                                    return transformer.transform(outputRecord, sinkSchema);
+                                }
                             } catch (JsonProcessingException | ClassNotFoundException e) {
                                 throw new IllegalStateException(e);
                             }
