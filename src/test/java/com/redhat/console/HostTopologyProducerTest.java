@@ -150,7 +150,12 @@ public class HostTopologyProducerTest {
         GenericRecordBuilder expectedBuilder = new GenericRecordBuilder(sinkValueSchema);
         expectedBuilder.set("host", expectedHostBuilder.build());
 
-        Assertions.assertEquals(expectedBuilder.build(), this.outputTopic.readValue());
+        GenericRecord value = this.outputTopic.readValue();
+        expectedBuilder.set("__core_read_ms", value.get("__core_read_ms"));
+        expectedBuilder.set("__core_write_ms", value.get("__core_write_ms"));
+        expectedBuilder.set("__es_write_ms", null);
+
+        Assertions.assertEquals(expectedBuilder.build(), value);
     }
 
     @Test
@@ -289,6 +294,11 @@ public class HostTopologyProducerTest {
         GenericRecordBuilder expectedBuilder = new GenericRecordBuilder(sinkValueSchema);
         expectedBuilder.set("host", expectedHostBuilder.build());
 
-        Assertions.assertEquals(expectedBuilder.build(), this.outputTopic.readValue());
+        GenericRecord value = this.outputTopic.readValue();
+        expectedBuilder.set("__core_read_ms", value.get("__core_read_ms"));
+        expectedBuilder.set("__core_write_ms", value.get("__core_write_ms"));
+        expectedBuilder.set("__es_write_ms", null);
+
+        Assertions.assertEquals(expectedBuilder.build(), value);
     }
 }

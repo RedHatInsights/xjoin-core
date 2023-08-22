@@ -418,6 +418,27 @@
         ],
         "xjoin.type": "reference"
       }
+    }, {
+      "name": "__core_read_ms",
+      "type": [{
+        "type": "long",
+        "xjoin.type": "string",
+        "xjoin.index": false
+      }, "null"]
+    }, {
+      "name": "__core_write_ms",
+      "type": [{
+        "type": "long",
+        "xjoin.type": "string",
+        "xjoin.index": "false"
+      }, "null"]
+    }, {
+      "name": "__es_write_ms",
+      "type": [{
+        "type": "long",
+        "xjoin.type": "string",
+        "xjoin.index": "false"
+      }, "null"]
     }
   ],
   "xjoin.transformations": [

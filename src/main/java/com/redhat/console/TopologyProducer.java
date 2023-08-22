@@ -77,8 +77,13 @@ public class TopologyProducer {
                                     return null;
                                 } else {
                                     GenericRecord outputRecord = new GenericData.Record(sinkSchema);
+                                    outputRecord.put("__core_read_ms", System.currentTimeMillis());
+
                                     outputRecord.put(sinkSchema.getFields().get(0).name(), record);
-                                    return transformer.transform(outputRecord, sinkSchema);
+                                    GenericRecord response = transformer.transform(outputRecord, sinkSchema);
+
+                                    response.put("__core_write_ms", System.currentTimeMillis());
+                                    return response;
                                 }
                             } catch (JsonProcessingException | ClassNotFoundException e) {
                                 throw new IllegalStateException(e);
